@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lady of Flames — Demo (Lady of Flames)</title>
+<style>
+  :root{
+    --bg:#0b0710;
+    --panel:#0f0b12;
+    --accent1:#ffb86b; /* gold */
+    --accent2:#ff3b1f; /* flame red */
+    --muted:#bfb8c7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(ellipse at top, #2b0710 0%, #07030a 60%), linear-gradient(180deg,#0b0710,#050204);font-family:Inter,system-ui,Arial;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+  .wrap{width:1100px;max-width:96%;padding:20px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.25));box-shadow:0 20px 80px rgba(0,0,0,0.8);position:relative}
+  header{display:flex;gap:18px;align-items:center}
+  .logo{width:84px;height:84px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#2b2b2b;font-size:20px}
+  h1{margin:0;font-size:22px}
+  .lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .layout{display:flex;gap:18px;margin-top:16px}
+  .left{flex:1}
+  .right{width:320px}
+  /* reels */
+  .machine{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+  .reels{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:10px;align-items:center;justify-items:center}
+  .reel{width:110px;height:190px;background:linear-gradient(180deg,rgba(0,0,0,0.18),rgba(255,255,255,0.02));border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.03);position:relative}
+  .symbol{width:86px;height:46px;border-radius:8px;margin:6px 0;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));box-shadow:0 6px 18px rgba(0,0,0,0.5);font-weight:800;text-shadow:0 2px 4px rgba(0,0,0,0.6)}
+  /* controls */
+  .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .btn{background:linear-gradient(180deg,var(--accent1),var(--accent2));border:none;padding:12px 16px;border-radius:10px;font-weight:900;cursor:pointer;color:#2b2b2b;box-shadow:0 10px 30px rgba(255,70,20,0.08)}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:700;padding:8px 10px}
+  .panel{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+  .stat{display:flex;justify-content:space-between;margin-bottom:8px;font-weight:700}
+  .muted{color:var(--muted);font-weight:600}
+  /* jackpot and meter */
+  .jackpot{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,184,107,0.06), rgba(255,59,31,0.04));border:1px solid rgba(255,150,80,0.07)}
+  .meter{height:14px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;margin-top:8px}
+  .meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#ffd08a,#ff6b3a);transition:width 400ms ease}
+  /* big effects */
+  .dewa-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:56px;font-weight:900;color:yellow;text-shadow:0 0 20px orange,0 0 40px red;display:none;z-index:9999;pointer-events:none}
+  .dewa-banner.show{display:block;animation:pop 0.6s ease}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+  .lightning{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:540px;height:240px;opacity:0;pointer-events:none;z-index:999}
+  .lightning.show{animation:flashy 0.18s ease 3;opacity:1}
+  @keyframes flashy{0%{opacity:0.0;filter:drop-shadow(0 0 0 rgba(255,255,0,0))}50%{opacity:1;filter:drop-shadow(0 0 24px rgba(255,255,150,0.8))}100%{opacity:0}}
+  /* fire glow */
+  .fire-glow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity 150ms linear}
+  .fire-glow.active{opacity:1;background:radial-gradient(circle at 50% 20%, rgba(255,200,120,0.12), rgba(255,80,40,0.06) 30%, transparent 45%)}
+  /* coin rain */
+  .coins{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden}
+  .coin{position:absolute;width:28px;height:28px;border-radius:50%;background:linear-gradient(180deg,#ffd86a,#ffb74d);box-shadow:0 6px 10px rgba(0,0,0,0.45);opacity:0.95;transform:translateY(-120%) rotate(0deg)}
+  /* screen shake */
+  .shake{animation:shake 0.6s ease-in-out}
+  @keyframes shake{0%{transform:translateY(0)}20%{transform:translateY(-8px)}40%{transform:translateY(6px)}60%{transform:translateY(-6px)}80%{transform:translateY(4px)}100%{transform:translateY(0)}}
+  /* responsive */
+  @media (max-width:980px){.wrap{padding:12px}.reel{width:86px;height:160px}.symbol{width:72px;height:38px;font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header>
+    <div class="logo">LF</div>
+    <div>
+      <h1>Lady of Flames</h1>
+      <div class="lead">6 Reels • Tumble • Multiplier Stacks • Free Spins • Mode Dewa</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="left">
+      <div class="machine panel">
+        <div class="lightning" id="lightning">
+          <!-- Inline SVG lightning + flame -->
+          <svg viewBox="0 0 800 300" width="100%" height="100%">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#fff38a"/><stop offset="1" stop-color="#ff7b3a"/></linearGradient>
+            </defs>
+            <g fill="url(#g1)" opacity="0.95">
+              <path d="M350 20 L420 20 L360 140 L470 140 L300 280 L330 170 L240 170 Z"></path>
+            </g>
+          </svg>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+          <div>
+            <div class="stat"><div class="muted">Credits</div><div id="credits">Rp1.000.000</div></div>
+            <div class="stat"><div class="muted">Bet</div><div id="bet">Rp10.000</div></div>
+            <div class="jackpot">
+              <div class="muted">Free Jackpot Meter</div>
+              <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span id="meterVal">0%</span><span>100%</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <button class="btn" id="spinBtn">SPIN</button>
+            <button class="btn ghost" id="autoBtn">Auto: OFF</button>
+            <button class="btn ghost" id="modeBtn">Mode Dewa: OFF</button>
+          </div>
+        </div>
+
+        <div class="reels" id="reels"></div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:space-between;align-items:center">
+          <div class="panel" style="flex:1"><div style="font-weight:800">Paytable & Rules</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.35">6 reels. Cocokkan simbol di baris tengah untuk menang. Tumble: setelah menang, simbol jatuh & digantikan. Meter jackpot naik tiap spin. Ini demo, tanpa uang nyata.</div></div>
+          <div style="width:10px"></div>
+          <div class="panel" style="width:220px">
+            <div style="font-weight:800">Recent</div>
+            <div id="log" style="height:120px;overflow:auto;font-size:13px;color:var(--muted);margin-top:8px"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel">
+        <div style="font-weight:800">Game Settings</div>
+        <div style="margin-top:8px">
+          <label class="muted">Theme</label>
+          <div style="margin-top:6px"><button class="btn ghost" id="themeBtn">Emas + Merah Api</button></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="muted">Mode Dewa efek</div>
+          <ul style="margin:8px 0 0 16px;color:var(--muted)">
+            <li>Petir & Api</li>
+            <li>Hujan Koin</li>
+            <li>Layar Bergetar</li>
+            <li>Multiplier ×10.000 saat ON</li>
+          </ul>
+        </div>
+        <div style="margin-top:12px;text-align:center"><button class="btn" id="downloadBtn">Download ZIP</button></div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="panel" style="margin-top:12px">
+        <div style="font-weight:800">Free Spins</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:8px">Dapatkan 3 simbol 🔥 (scatter) untuk memicu free spins. Mode Dewa otomatis memberikan free spins tiap spin.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fire-glow" id="fireGlow"></div>
+<div class="dewa-banner" id="dewaBanner">💥 MODE DEWA 💥</div>
+<div class="coins" id="coins"></div>
+
+<script>
+/* --- Game engine (demo) --- */
+const SYMBOLS = ['🔥','⚡','💎','🪙','🔱','🍇','⭐'];
+const WEIGHTS = [6,5,5,4,3,6,4]; // relative freq for random mode
+const REELS = 6, ROWS = 3;
+let credits = 2000000; // base credits in Rupiah units
+let bet = 10000;
+let meter = 0;
+let auto = false;
+let modeDewa = false;
+let freeSpins = 0;
+let totalMultiplier = 1;
+const reelsEl = document.getElementById('reels');
+const creditsEl = document.getElementById('credits');
+const betEl = document.getElementById('bet');
+const meterFill = document.getElementById('meterFill');
+const meterVal = document.getElementById('meterVal');
+const logEl = document.getElementById('log');
+const spinBtn = document.getElementById('spinBtn');
+const autoBtn = document.getElementById('autoBtn');
+const modeBtn = document.getElementById('modeBtn');
+const dewaBanner = document.getElementById('dewaBanner');
+const lightning = document.getElementById('lightning');
+const fireGlow = document.getElementById('fireGlow');
+const coinsLayer = document.getElementById('coins');
+const wrap = document.getElementById('wrap');
+
+function fmt(num){ return 'Rp' + Number(num).toLocaleString('id-ID'); }
+function rndWeighted(){ const total = WEIGHTS.reduce((a,b)=>a+b,0); let r=Math.random()*total; for(let i=0;i<SYMBOLS.length;i++){ r-=WEIGHTS[i]; if(r<=0) return SYMBOLS[i]; } return SYMBOLS[0]; }
+function createEmptyGrid(){ const grid=[]; for(let c=0;c<REELS;c++){ grid[c]=[]; for(let r=0;r<ROWS;r++) grid[c][r]=rndWeighted(); } return grid; }
+function renderGrid(grid){ reelsEl.innerHTML=''; for(let c=0;c<REELS;c++){ const reel=document.createElement('div'); reel.className='reel'; for(let r=0;r<ROWS;r++){ const s=document.createElement('div'); s.className='symbol'; s.textContent = grid[c][r]; reel.appendChild(s); } reelsEl.appendChild(reel); } }
+function logLine(t){ const d=document.createElement('div'); d.textContent = t; logEl.prepend(d); if(logEl.children.length>80) logEl.removeChild(logEl.lastChild); }
+
+function spinOnce(){ if(modeDewa){ // forced super win
+    const grid = Array.from({length:REELS},()=>Array.from({length:ROWS},()=>'⚡')); // all lightning
+    renderGrid(grid);
+    const win = bet * 10000 * totalMultiplier;
+    credits += win;
+    meter = 100;
+    updateUI();
+    showBigWin(win);
+    logLine('💥 MODE DEWA WIN: +' + fmt(win));
+    // extra effects
+    triggerDewaEffects();
+    // reset free spins (but we can grant)
+    freeSpins = Math.max(0, freeSpins-1);
+    return Promise.resolve();
+  }
+
+  // normal spin
+  if(credits < bet){ logLine('Kredit kurang.'); return Promise.resolve(); }
+  credits -= bet;
+  // increase meter by small amount
+  meter = Math.min(100, meter + 4 + Math.random()*6);
+  updateUI();
+  // create grid with weighted random
+  const grid = createEmptyGrid();
+  // animate simple fake tumble: randomize then render after short delay
+  renderGrid(grid);
+  // evaluate wins: check middle row matching from left consecutive
+  const middle = grid.map(col=>col[1]);
+  let runSym = middle[0], runLen = 1;
+  for(let i=1;i<middle.length;i++){ if(middle[i]===runSym) runLen++; else break; }
+  let payout = 0;
+  if(runLen>=3){
+    const mult = runLen===3?5:runLen===4?20:runLen===5?100:runLen>=6?500:0;
+    payout = bet * mult * totalMultiplier;
+  }
+  // scatter (🔥) count for free spins
+  const scatterCount = grid.flat().filter(s=>s==='🔥').length;
+  if(scatterCount>=3){ const grant = 6 + (scatterCount-3)*2; freeSpins += grant; logLine('Free Spins +'+grant+'!'); }
+  // random small lightning multipliers
+  const lightningCount = grid.flat().filter(s=>s==='⚡').length;
+  if(lightningCount>0){
+    const addMult = 1 + lightningCount*0.5; // sample stacking effect
+    totalMultiplier *= addMult;
+    logLine('Multiplier stack x'+addMult.toFixed(2));
+  }
+  // if meter full -> jackpot
+  if(meter>=100){
+    const jackpot = 500000 + Math.floor(Math.random()*1000000);
+    payout += jackpot;
+    meter = 0;
+    logLine('FREE JACKPOT +' + fmt(jackpot));
+    showBigWin(jackpot);
+  }
+
+  if(payout>0){
+    credits += payout;
+    logLine('Win +' + fmt(payout) + ' (' + middle.join(' | ') + ')');
+    // trigger small effects
+    flashOnce();
+    playSoundWin();
+  } else {
+    logLine('No win (' + middle.join(' | ') + ')');
+  }
+  updateUI();
+  return Promise.resolve();
+}
+
+function updateUI(){
+  creditsEl.textContent = fmt(credits);
+  betEl.textContent = fmt(bet);
+  meterFill.style.width = meter + '%';
+  meterVal.textContent = Math.floor(meter) + '%';
+}
+
+async function spinHandler(){
+  spinBtn.disabled = true;
+  await spinOnce();
+  spinBtn.disabled = false;
+  // autoplay
+  if(auto && credits >= bet && !modeDewa){
+    setTimeout(()=>spinHandler(), 300);
+  } else if(auto && modeDewa){
+    // in mode dewa still allow continuous without stop
+    setTimeout(()=>spinHandler(), 250);
+  }
+}
+
+spinBtn.addEventListener('click', spinHandler);
+autoBtn.addEventListener('click', ()=>{ auto = !auto; autoBtn.textContent = 'Auto: ' + (auto? 'ON':'OFF'); if(auto) spinHandler(); });
+modeBtn.addEventListener('click', ()=>{ modeDewa = !modeDewa; modeBtn.textContent = 'Mode Dewa: ' + (modeDewa? 'ON':'OFF'); if(modeDewa){ dewaBanner.classList.add('show'); setTimeout(()=>dewaBanner.classList.remove('show'),1200); } });
+
+// Effects implementations
+function flashOnce(){ wrap.classList.add('shake'); fireGlow.classList.add('active'); setTimeout(()=>{ wrap.classList.remove('shake'); fireGlow.classList.remove('active'); },650); }
+function triggerDewaEffects(){
+  // lightning flash
+  lightning.classList.add('show');
+  setTimeout(()=>lightning.classList.remove('show'),700);
+  // banner
+  dewaBanner.classList.add('show');
+  setTimeout(()=>dewaBanner.classList.remove('show'),1400);
+  // coin rain and fire glow and shake
+  fireGlow.classList.add('active');
+  createCoinRain(36);
+  wrap.classList.add('shake');
+  setTimeout(()=>{ fireGlow.classList.remove('active'); wrap.classList.remove('shake'); },1600);
+  playSoundBig();
+}
+
+// simple sound effects
+function playSoundWin(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type='sine'; o.frequency.value=880; g.gain.value=0.06; o.connect(g); g.connect(ctx.destination); o.start(); setTimeout(()=>{ o.stop(); ctx.close(); },160); }catch(e){} }
+function playSoundBig(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type='sine'; o.frequency.value=120; g.gain.value=0.2; o.connect(g); g.connect(ctx.destination); o.start(); setTimeout(()=>{ o.stop(); ctx.close(); },420); }catch(e){} }
+
+// coin rain
+function createCoinRain(n){
+  const w = window.innerWidth; const h = window.innerHeight;
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');
+    c.className='coin';
+    c.style.left = Math.random()*w + 'px';
+    c.style.top = '-40px';
+    c.style.transform = `scale(${0.8 + Math.random()*0.8})`;
+    coinsLayer.appendChild(c);
+    const dur = 800 + Math.random()*900;
+    c.animate([{transform: c.style.transform + ' translateY(0) rotate(0deg)', opacity:1},{transform: c.style.transform + ' translateY(' + (h+120) + 'px) rotate('+ (360+Math.random()*720) +'deg)', opacity:0.9}],{duration:dur, easing:'cubic-bezier(.2,.9,.2,1)'});
+    setTimeout(()=>{ try{ coinsLayer.removeChild(c); }catch(e){} }, dur+50);
+  }
+}
+
+// download ZIP (fetches same file we will provide via link on backend; here we just create downloadable blob)
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lady-of-flames.html'; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); try{ document.body.removeChild(a);}catch(e){} },1500);
+});
+
+// initialize
+updateUI();
+renderGrid(createEmptyGrid());
+logLine('Ready — Lady of Flames (demo).');
+</script>
+</body>
+</html>
